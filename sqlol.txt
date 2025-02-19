@@ -1,0 +1,90 @@
+CREATE DATABASE bibliotheque;
+USE bibliotheque;
+
+CREATE TABLE livres (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(255) NOT NULL,
+    annee INT CHECK (annee >= 1800 AND annee <= YEAR(CURRENT_DATE())),
+    auteur VARCHAR(100) NOT NULL,
+    publication INT CHECK (publication >= 1800 AND publication <= YEAR(CURRENT_DATE())),
+    genre VARCHAR(50) NOT NULL,
+    prix DECIMAL(6,2) CHECK (prix > 0)
+);
+CREATE TABLE emprunts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    livre INT,
+    nom_emprunteur VARCHAR(100) NOT NULL,
+    date_emprunt DATE NOT NULL,
+    date_retour_prevue DATE NOT NULL CHECK (date_retour_prevue >= date_emprunt),
+    statut VARCHAR(20) DEFAULT 'En cours' CHECK (statut IN ('En cours', 'Retournée')),
+    FOREIGN KEY (livre) REFERENCES livres(id)
+);
+
+INSERT INTO livres (titre, auteur, annee, genre, prix) 
+VALUES 
+('L Etranger', 'Albert Camus', 1942, 'Roman', 12.50),
+('1984', 'George Orwell', 1949, 'Science-fiction', 15.00),
+('Le Petit Prince', 'Antoine de Saint-Exupery', 1943, 'Conte', 8.90),
+('Les Miserables', 'Victor Hugo', 1862, 'Classique', 20.00),
+('Harry Potter', 'J.K. Rowling', 1997, 'Fantaisie', 25.99),
+('Dune', 'Frank Herbert', 1965, 'Science-fiction', 18.00),
+('Don Quichotte', 'Miguel de Cervantes', 1605, 'Classique', 22.50),
+('La Peste', 'Albert Camus', 1947, 'Roman', 14.99),
+('L Odyssee', 'Homere', -800, 'epopee', 30.00),
+('Crime et Chatiment', 'Fiodor Dostoievski', 1866, 'Roman', 19.50);
+INSERT INTO emprunts (livre, nom_emprunteur, date_emprunt, date_retour_prevue, statut)
+VALUES
+(1, 'Alice Dupont', '2025-02-10', '2025-02-20', 'En cours'),
+(2, 'Jean Martin', '2025-02-05', '2025-02-15', 'Retournee'),
+(3, 'Sophie Bernard', '2025-02-12', '2025-02-22', 'En cours'),
+(4, 'Paul Laurent', '2025-02-01', '2025-02-11', 'Retournee'),
+(5, 'Emma Rousseau', '2025-02-07', '2025-02-17', 'En cours'),
+(6, 'Lucas Morel', '2025-02-10', '2025-02-15', 'Retournee'),
+(7, 'Marie Curie', '2025-02-03', '2025-02-18', 'En cours'),
+(8, 'Isaac Newton', '2025-02-05', '2025-02-14', 'Retournee'),
+(9, 'Charles Darwin', '2025-02-06', '2025-02-16', 'En cours'),
+(10, 'Nikola Tesla', '2025-02-02', '2025-02-12', 'Retournee');
+
+1 SELECT livres.titre, livres.auteur, emprunts.nom_emprunteur FROM emprunts, livres
+WHERE emprunts.livre = livres.id AND emprunts.statut = 'En cours';
+
+2 SELECT livre FROM emprunts GROUP BY livre ORDER BY COUNT(*) DESC LIMIT 1;
+
+3 SELECT titre FROM livres WHERE id NOT IN (SELECT livre FROM emprunts);
+
+4 SELECT emprunts.nom_emprunteur, emprunts.date_retour_prevue FROM emprunts
+WHERE emprunts.statut = 'En cours' AND emprunts.date_retour_prevue < CURRENT_DATE();
+
+5 UPDATE livres SET prix = prix * 1.15 WHERE prix <= 20;
+
+6 DELETE FROM emprunts WHERE statut = 'Retournee';
+
+7 UPDATE emprunts SET statut = 'Retournee' WHERE statut = 'En cours' AND date_retour_prevue < CURRENT_DATE();
+
+8 SELECT titre FROM livres WHERE prix = (SELECT MAX(prix) FROM livres);
+
+9 SELECT genre, AVG(prix) AS prix_moyen FROM livres GROUP BY genre;
+
+10 SELECT titre, auteur, annee, prix FROM livres
+WHERE annee BETWEEN 1950 AND 2000 AND prix > 10;
+
+11 DELETE FROM livres WHERE id NOT IN (SELECT livre FROM emprunts);
+
+12 UPDATE emprunts SET statut = 'En cours' WHERE statut = 'Retournée';
+
+13 SELECT titre, auteur, annee
+FROM livres ORDER BY annee ASC LIMIT 1 OFFSET 1;
+14 INSERT INTO emprunts (livre, nom_emprunteur, date_emprunt, date_retour_prevue, statut)
+VALUES (1, 'John Doe', '2025-02-10', '2025-01-10', 'En cours');
+
+UPDATE emprunts
+SET date_retour_prevue = '2025-02-20'
+WHERE livre = 1 AND nom_emprunteur = 'John Doe' AND date_retour_prevue = '2025-01-10';
+
+
+
+
+
+
+
+
