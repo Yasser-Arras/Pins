@@ -1,89 +1,111 @@
-CREATE DATABASE bibliotheque;
-USE bibliotheque;
-
-CREATE TABLE livres (
+CREATE DATABASE reservation_vols;
+USE reservation_vols;
+CREATE TABLE vols (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    titre VARCHAR(255) NOT NULL,
-    annee INT CHECK (annee >= 1800 AND annee <= YEAR(CURRENT_DATE())),
-    auteur VARCHAR(100) NOT NULL,
-    publication INT CHECK (publication >= 1800 AND publication <= YEAR(CURRENT_DATE())),
-    genre VARCHAR(50) NOT NULL,
-    prix DECIMAL(6,2) CHECK (prix > 0)
+    numero_vol VARCHAR(10) UNIQUE NOT NULL,
+    compagnie VARCHAR(100) NOT NULL,
+    ville_depart VARCHAR(50) NOT NULL,
+    ville_arrivee VARCHAR(50) NOT NULL,
+    date_depart DATE NOT NULL,
+    date_arrivee DATE NOT NULL,
+    prix DECIMAL(7,2) CHECK (prix > 0)
 );
-CREATE TABLE emprunts (
+CREATE TABLE passagers (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    livre INT,
-    nom_emprunteur VARCHAR(100) NOT NULL,
-    date_emprunt DATE NOT NULL,
-    date_retour_prevue DATE NOT NULL CHECK (date_retour_prevue >= date_emprunt),
-    statut VARCHAR(20) DEFAULT 'En cours' CHECK (statut IN ('En cours', 'Retournée')),
-    FOREIGN KEY (livre) REFERENCES livres(id)
+    nom VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    telephone VARCHAR(15) NOT NULL
 );
 
-INSERT INTO livres (titre, auteur, annee, genre, prix) 
-VALUES 
-('L Etranger', 'Albert Camus', 1942, 'Roman', 12.50),
-('1984', 'George Orwell', 1949, 'Science-fiction', 15.00),
-('Le Petit Prince', 'Antoine de Saint-Exupery', 1943, 'Conte', 8.90),
-('Les Miserables', 'Victor Hugo', 1862, 'Classique', 20.00),
-('Harry Potter', 'J.K. Rowling', 1997, 'Fantaisie', 25.99),
-('Dune', 'Frank Herbert', 1965, 'Science-fiction', 18.00),
-('Don Quichotte', 'Miguel de Cervantes', 1605, 'Classique', 22.50),
-('La Peste', 'Albert Camus', 1947, 'Roman', 14.99),
-('L Odyssee', 'Homere', -800, 'epopee', 30.00),
-('Crime et Chatiment', 'Fiodor Dostoievski', 1866, 'Roman', 19.50);
-INSERT INTO emprunts (livre, nom_emprunteur, date_emprunt, date_retour_prevue, statut)
-VALUES
-(1, 'Alice Dupont', '2025-02-10', '2025-02-20', 'En cours'),
-(2, 'Jean Martin', '2025-02-05', '2025-02-15', 'Retournee'),
-(3, 'Sophie Bernard', '2025-02-12', '2025-02-22', 'En cours'),
-(4, 'Paul Laurent', '2025-02-01', '2025-02-11', 'Retournee'),
-(5, 'Emma Rousseau', '2025-02-07', '2025-02-17', 'En cours'),
-(6, 'Lucas Morel', '2025-02-10', '2025-02-15', 'Retournee'),
-(7, 'Marie Curie', '2025-02-03', '2025-02-18', 'En cours'),
-(8, 'Isaac Newton', '2025-02-05', '2025-02-14', 'Retournee'),
-(9, 'Charles Darwin', '2025-02-06', '2025-02-16', 'En cours'),
-(10, 'Nikola Tesla', '2025-02-02', '2025-02-12', 'Retournee');
+CREATE TABLE reservations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_vol INT,
+    id_passager INT,
+    FOREIGN KEY (id_vol) REFERENCES vols(id),
+    FOREIGN KEY (id_passager) REFERENCES passagers(id)
+    date_reservation DATE NOT NULL,
+    statut VARCHAR(20) DEFAULT 'Confirmée' CHECK (statut IN ('Confirmée', 'Annulée'))
+);
 
-1 SELECT livres.titre, livres.auteur, emprunts.nom_emprunteur FROM emprunts, livres
-WHERE emprunts.livre = livres.id AND emprunts.statut = 'En cours';
+INSERT INTO vols (numero_vol, compagnie, ville_depart, ville_arrivee, date_depart, date_arrivee, prix) VALUES
+('AF123', 'Air France', 'Paris', 'New York', '2025-03-01', '2025-03-02', 550.00),
+('LH456', 'Lufthansa', 'Berlin', 'Tokyo', '2025-03-05', '2025-03-06', 720.50),
+('EK789', 'Emirates', 'Dubai', 'Sydney', '2025-03-10', '2025-03-11', 980.75),
+('QR101', 'Qatar Airways', 'Doha', 'London', '2025-03-15', '2025-03-16', 650.25),
+('AA202', 'American Airlines', 'Los Angeles', 'Miami', '2025-03-20', '2025-03-20', 320.00);
 
-2 SELECT livre FROM emprunts GROUP BY livre ORDER BY COUNT(*) DESC LIMIT 1;
+INSERT INTO passagers (nom, email, telephone) VALUES
+('Alice Dupont', 'alice.dupont@email.com', '0612345678'),
+('Jean Martin', 'jean.martin@email.com', '0623456789'),
+('Sophie Bernard', 'sophie.bernard@email.com', '0634567890'),
+('Paul Laurent', 'paul.laurent@email.com', '0645678901'),
+('Emma Rousseau', 'emma.rousseau@email.com', '0656789012');
 
-3 SELECT titre FROM livres WHERE id NOT IN (SELECT livre FROM emprunts);
+INSERT INTO reservations (id_vol, id_passager, date_reservation, statut) VALUES
+(1, 1, '2025-02-10', 'Confirmée'),
+(2, 2, '2025-02-12', 'Annulée'),
+(3, 3, '2025-02-15', 'Confirmée'),
+(4, 4, '2025-02-18', 'Confirmée'),
+(5, 5, '2025-02-20', 'Annulée'),
+(1, 3, '2025-02-25', 'Confirmée'),
+(3, 2, '2025-02-28', 'Confirmée'),
+(4, 1, '2025-03-02', 'Annulée');
 
-4 SELECT emprunts.nom_emprunteur, emprunts.date_retour_prevue FROM emprunts
-WHERE emprunts.statut = 'En cours' AND emprunts.date_retour_prevue < CURRENT_DATE();
+SELECT numero_vol, compagnie, prix FROM vols;
 
-5 UPDATE livres SET prix = prix * 1.15 WHERE prix <= 20;
+SELECT * FROM vols WHERE prix > 500;
 
-6 DELETE FROM emprunts WHERE statut = 'Retournee';
+SELECT passagers.nom, reservations.status FROM passagers, reservations WHERE passagers.id = reservations.id_passager AND status = "Confirmée";
 
-7 UPDATE emprunts SET statut = 'Retournee' WHERE statut = 'En cours' AND date_retour_prevue < CURRENT_DATE();
+SELECT vols.numero_vol, COUNT(reservations.id_vol) AS NbrReservation WHERE status = "Confirmée" GROUP BY NbrReservation ORDER BY NbrReservation DESC LIMIT 1; 
 
-8 SELECT titre FROM livres WHERE prix = (SELECT MAX(prix) FROM livres);
-
-9 SELECT genre, AVG(prix) AS prix_moyen FROM livres GROUP BY genre;
-
-10 SELECT titre, auteur, annee, prix FROM livres
-WHERE annee BETWEEN 1950 AND 2000 AND prix > 10;
-
-11 DELETE FROM livres WHERE id NOT IN (SELECT livre FROM emprunts);
-
-12 UPDATE emprunts SET statut = 'En cours' WHERE statut = 'Retournée';
-
-13 SELECT titre, auteur, annee
-FROM livres ORDER BY annee ASC LIMIT 1 OFFSET 1;
-14 INSERT INTO emprunts (livre, nom_emprunteur, date_emprunt, date_retour_prevue, statut)
-VALUES (1, 'John Doe', '2025-02-10', '2025-01-10', 'En cours');
-
-UPDATE emprunts
-SET date_retour_prevue = '2025-02-20'
-WHERE livre = 1 AND nom_emprunteur = 'John Doe' AND date_retour_prevue = '2025-01-10';
+SELECT nom 
+FROM passagers 
+WHERE id IN (
+    SELECT id_passager 
+    FROM reservations 
+    GROUP BY id_passager 
+    WHERE COUNT(id_passager) > 1
+);
 
 
+SELECT * FROM vols WHERE id IN (
+    SELECT id_vol FROM reservations WHERE statut = 'Annulée'
+);
 
+UPDATE vols SET prix = prix * 0.9 WHERE prix > 700;
 
+DELETE FROM reservations WHERE reservation_status = 'Annulée';
+
+SELECT * FROM passagers WHERE id IN (
+    SELECT id_passager 
+    FROM reservations 
+    WHERE id_vol IN (SELECT id FROM vols WHERE compagnie = 'Emirates')
+);
+
+SELECT compagnie, AVG(prix) AS moyenne_prix FROM vols GROUP BY compagnie;
+
+SELECT * FROM passagers WHERE id NOT IN (
+    SELECT id_passager 
+    FROM reservations 
+    WHERE statut = 'Annulée'
+);
+
+UPDATE vols SET prix = prix * 1.05 WHERE id IN (
+    SELECT id_vol
+    FROM reservations
+    WHERE statut = 'Confirmée'
+    GROUP BY id_vol
+    HAVING COUNT(id_vol) < 3
+);
+
+DELETE FROM vols WHERE id NOT IN (
+    SELECT DISTINCT id_vol FROM reservations
+);
+
+SELECT * FROM vols ORDER BY prix DESC LIMIT 1 OFFSET 1;
+
+UPDATE reservations SET statut = 'Confirmée';
 
 
 
