@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Commande des Clients</h1>
+    <button onclick="start()">Commencer</button>
+
+    <script>
+        let chiffre = 0;
+        function start() {
+
+            let clients = prompt("Combien de clients ?");
+            while (isNaN(clients) || clients <= 0) {
+                clients = prompt("Nombre Invalide.\nCombien de clients ?");
+            }
+            for (let i = 1; i <= clients; i++) {
+                let cats = ["livre", "electronique", "vetement"];
+                let cat = prompt("Catégorie ? (livre, electronique, vetement)");
+                while (!cats.includes(cat)) {
+                    cat = prompt("Catégorie Invalide.\nCatégorie ? (livre, electronique, vetement)");
+                }
+                let prix = 0;
+                switch (cat) {
+                    case "livre":
+                        prix = 50;
+                        break;
+                    case "electronique":
+                        prix = 1500;
+                        break;
+                    case "vetement":
+                        prix = 300;
+                        break;
+                    default:
+                        alert("Erreur.");
+                        window.close();
+                        break;
+                }
+
+
+                let qte = prompt("Quantite ?");
+                while (isNaN(qte) || qte <= 0) {
+                    qte = prompt("Quantite Invalide.\nQuantite ?");
+                }
+
+                let total = prix * qte;
+                if (qte > 3) total *= 0.9; 
+
+                alert(`Catégorie: ${cat}\nQuantité: ${qte}\nTotal: ${total} MAD`);
+                chiffre += total;
+            }
+
+            alert("Chiffre d'affaires total: " + chiffre + " MAD");
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        let users = prompt("Combien d'utilisateurs sont présents aujourd'hui ?");
+        while (isNaN(users) || users <= 0){
+            users = prompt("Nombre invalide\nCombien d'utilisateurs sont présents aujourd'hui ?");
+        }
+        let liste = [];
+        for (let i = 1; i <= users; i++){
+            let nbr = prompt("Nombre d'exercices que le client nº" + i + " a fait ?");
+            while (isNaN(nbr) || nbr < 0){
+                nbr = prompt("Nombre invalide\nNombre d'exercices que le client nº" + i + " a fait ?");
+            } 
+            liste.push(Number(nbr));  
+        }
+        let total = 0;
+        liste.forEach((value, index) => {
+            console.log("Client " + (index + 1) + " a fait " + value + " exercices.");
+            total += value;
+        });
+        console.log("Total : " + total);
+    </script>
+</body>
+
+</html>
